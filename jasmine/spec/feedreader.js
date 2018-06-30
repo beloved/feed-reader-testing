@@ -26,34 +26,62 @@ $(function() {
             expect(allFeeds.length).not.toBe(0);
         });
 
-
         /* TODO: Write a test that loops through each feed
          * in the allFeeds object and ensures it has a URL defined
          * and that the URL is not empty.
          */
 
-
         /* TODO: Write a test that loops through each feed
          * in the allFeeds object and ensures it has a name defined
          * and that the name is not empty.
          */
+
+        /* Created loop and called feed outside of test
+         * Based upon reasoning found from this article
+         * http://www.sinaru.com/2017/02/01/careful-using-loops-jasmine-specs/
+         */
+        function checkFeed(feed) {
+            it('feed has URL', function () {
+                expect(feed.url).toBeDefined();
+                expect(feed.url.length).not.toBe(0);
+            });
+            it('feed has Name', function () {
+                expect(feed.name).toBeDefined();
+                expect(feed.name.length).not.toBe(0);
+            });
+        }
+        for (let feed of allFeeds) {
+            checkFeed(feed);
+        }
     });
 
-
     /* TODO: Write a new test suite named "The menu" */
+    describe('The menu', function() {
 
         /* TODO: Write a test that ensures the menu element is
          * hidden by default. You'll have to analyze the HTML and
          * the CSS to determine how we're performing the
          * hiding/showing of the menu element.
          */
-
+        it('hidden by default', function() {
+            expect(document.querySelector('.menu-hidden')).not.toBe(null);
+        });
          /* TODO: Write a test that ensures the menu changes
           * visibility when the menu icon is clicked. This test
           * should have two expectations: does the menu display when
           * clicked and does it hide when clicked again.
           */
+        //  Using JQuery to simulate a user click
+        // based upon research found at this link
+        // https://www.htmlgoodies.com/beyond/javascript/js-ref/testing-dom-events-using-jquery-and-jasmine-2.0.html
 
+         it('shows/hide when clicked', function() {
+             $('.menu-icon-link').trigger( 'click' );
+             expect(document.querySelector('.menu-hidden')).toBe(null);
+             $('.menu-icon-link').trigger( 'click' );
+             expect(document.querySelector('.menu-hidden')).not.toBe(null);
+         })
+    });
     /* TODO: Write a new test suite named "Initial Entries" */
 
         /* TODO: Write a test that ensures when the loadFeed
@@ -62,6 +90,18 @@ $(function() {
          * Remember, loadFeed() is asynchronous so this test will require
          * the use of Jasmine's beforeEach and asynchronous done() function.
          */
+        describe('Initial Entries', function() {
+            beforeEach(function (done) {
+                loadFeed(0, function () {
+                    done();
+                });
+            });
+            it('has at least 1 entry', function() {
+               expect(document.querySelector('.feed .entry')).not.toBe(null);
+               //console.log(document.querySelector('.feed .entry'));
+            });
+
+        });
 
     /* TODO: Write a new test suite named "New Feed Selection" */
 
@@ -69,4 +109,22 @@ $(function() {
          * by the loadFeed function that the content actually changes.
          * Remember, loadFeed() is asynchronous.
          */
+
+    describe('New Feed Selection', function() {
+        let feed1;
+        let feed2;
+        beforeEach(function (done) {
+            loadFeed(0, function () {
+                feed1 = document.querySelector('.feed');
+                done();
+            });
+            loadFeed(0, function () {
+                feed2 = document.querySelector('.feed');
+                done();
+            });
+        });
+        it('content changes with each feed load', function () {
+            expect(feed1).not.toBe(feed2);
+        });
+    });
 }());
